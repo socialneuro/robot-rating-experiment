@@ -4,8 +4,6 @@ import pandas as pd
 import os
 from datetime import datetime
 from PIL import Image
-import gspread
-from google.oauth2.service_account import Credentials
 
 st.set_page_config(page_title="Robot Rating Experiment", layout="centered")
 
@@ -130,16 +128,6 @@ elif st.session_state.page == "experiment":
                     "timestamp": datetime.now().isoformat()
                 }
                 st.session_state.responses.append(record)
-
-                try:
-                    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-                    creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
-                    client = gspread.authorize(creds)
-                    sheet = client.open("Robot Ratings").worksheet("Sheet 1")
-                    sheet.append_row(list(record.values()))
-                except Exception as e:
-                    st.error(f"Failed to save to Google Sheets: {e}")
-
                 st.session_state.image_index += 1
                 st.rerun()
     else:
@@ -153,20 +141,12 @@ elif st.session_state.page == "thankyou":
     st.code("PROLIFIC-ROBOTS-0424", language="text")
     st.balloons()
 
+    # Save data to CSV file
     df = pd.DataFrame(st.session_state.responses)
     os.makedirs("data", exist_ok=True)
     filename = f"data/{st.session_state.participant_id}_ratings.csv"
     df.to_csv(filename, index=False)
-
-    try:
-        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
-        client = gspread.authorize(creds)
-        sheet = client.open("Robot Ratings").worksheet("Sheet 1")
-        sheet.append_rows(df.values.tolist())
-        st.success("Data successfully saved to Google Sheets.")
-    except Exception as e:
-        st.error(f"Failed to upload to Google Sheets: {e}")
+    st.success(f"Data saved to {filename}")
 
     # Email section
     if "responses" in st.session_state and st.session_state.responses:
