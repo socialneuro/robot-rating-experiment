@@ -45,7 +45,7 @@ This study explores how people perceive AI-generated images of robots. The impre
 - View a series of AI-generated images of robots  
 - Make three ratings of each robot
 
-The study takes ~5 minutes. You will be paid via Prolific after completion.
+The study takes ~10 minutes. You will be paid via Prolific after completion.
 
 ### Benefits and Risks
 Your input helps improve robot design. No known risks. You can discontinue at any time.
@@ -137,10 +137,7 @@ elif st.session_state.page == "experiment":
 elif st.session_state.page == "thankyou":
     st.title("Thank you!")
     st.write("You have completed the study.")
-    st.markdown("Please use the following **Prolific completion code** to confirm your participation:")
-    st.code("PROLIFIC-ROBOTS-0424", language="text")
-    st.balloons()
-
+    
     # Save data to CSV file
     df = pd.DataFrame(st.session_state.responses)
     os.makedirs("data", exist_ok=True)
@@ -172,17 +169,14 @@ elif st.session_state.page == "thankyou":
                 smtp.send_message(msg)
 
             st.success("✅ Your responses have been sent successfully.")
-        st.markdown("Please copy the following completion code and paste it into Prolific:")
-        st.code("PROLIFIC-ROBOTS-0424", language="text")
-        st.markdown("Or click the link below to be redirected to Prolific:")
-        st.markdown("[Complete Submission](https://app.prolific.co/submissions/complete?cc=PROLIFIC-ROBOTS-0424)")
-
-    st.markdown("Please copy the following completion code and paste it into Prolific:")
-    st.code("PROLIFIC-ROBOTS-0424", language="text")
-    st.markdown("Or click the link below to be redirected to Prolific:")
-    st.markdown("[Complete Submission](https://app.prolific.co/submissions/complete?cc=PROLIFIC-ROBOTS-0424)")
-
         except Exception as e:
             st.error(f"❌ Failed to send email. Error: {e}")
     else:
         st.warning("⚠️ No responses were recorded.")
+    
+    # Prolific completion information
+    st.markdown("Please copy the following completion code and paste it into Prolific:")
+    st.code("PROLIFIC-ROBOTS-0424", language="text")
+    st.markdown("Or click the link below to be redirected to Prolific:")
+    st.markdown("[Complete Submission](https://app.prolific.co/submissions/complete?cc=PROLIFIC-ROBOTS-0424)")
+    st.balloons()
