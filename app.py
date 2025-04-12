@@ -169,7 +169,7 @@ elif st.session_state.page == "thankyou":
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
         client = gspread.authorize(creds)
-        sheet = client.open("Robot Ratings").worksheet("Sheet 1")
+        sheet = client.open("Robot_Ratings").worksheet("Sheet 1")
         sheet.append_rows(df.values.tolist())
         st.success("Data successfully saved to Google Sheets.")
     except Exception as e:
