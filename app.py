@@ -9,6 +9,12 @@ from google.oauth2.service_account import Credentials
 
 st.set_page_config(page_title="Robot Rating Experiment", layout="centered")
 
+# Helper function to extract numeric rating from label
+def extract_rating(label):
+    if not label:
+        return None
+    return int(label.split(" - ")[0])
+
 @st.cache_data
 def load_conditions():
     return pd.read_csv("robot_conditions.csv")
@@ -110,7 +116,13 @@ elif st.session_state.page == "experiment":
             with col3:
                 scary = st.radio("Scary", options=labels, index=None)
             submitted = st.form_submit_button("Submit Ratings")
-                            record = {
+            
+            if submitted:
+                if not realistic or not friendly or not scary:
+                    st.error("Please provide all ratings before submitting.")
+                    st.stop()
+                    
+                record = {
                     "participant": st.session_state.participant_id,
                     "age": st.session_state.age,
                     "gender": st.session_state.gender,
@@ -134,47 +146,6 @@ elif st.session_state.page == "experiment":
                 except Exception as e:
                     st.error(f"Failed to save to Google Sheets: {e}")
 
-                st.session_state.image_index += 1
-                st.rerun()
-
-
-                            record = {
-        "participant": st.session_state.participant_id,
-        "age": st.session_state.age,
-        "gender": st.session_state.gender,
-        "image": row['filename'],
-        "friendliness": row['friendliness'],
-        "type": row['type'],
-        "instance": row['instance'],
-        "realistic": extract_rating(realistic),
-        "friendly": extract_rating(friendly),
-        "scary": extract_rating(scary),
-        "timestamp": datetime.now().isoformat()
-    }
-    st.session_state.responses.append(record)
-
-    try:
-        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
-        client = gspread.authorize(creds)
-        sheet = client.open("Robot Ratings").worksheet("Sheet 1")
-        sheet.append_row(list(record.values()))
-    except Exception as e:
-        st.error(f"Failed to save to Google Sheets: {e}")
-
-
-                    "participant": st.session_state.participant_id,
-                    "age": st.session_state.age,
-                    "gender": st.session_state.gender,
-                    "image": row['filename'],
-                    "friendliness": row['friendliness'],
-                    "type": row['type'],
-                    "instance": row['instance'],
-                    "realistic": extract_rating(realistic),
-                    "friendly": extract_rating(friendly),
-                    "scary": extract_rating(scary),
-                    "timestamp": datetime.now().isoformat()
-                })
                 st.session_state.image_index += 1
                 st.rerun()
     else:
