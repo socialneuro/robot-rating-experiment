@@ -9,11 +9,6 @@ from google.oauth2.service_account import Credentials
 
 st.set_page_config(page_title="Robot Rating Experiment", layout="centered")
 
-st.subheader("🔐 Secrets Debug")
-st.write("gcp_service_account in secrets?", "gcp_service_account" in st.secrets)
-
-if "gcp_service_account" in st.secrets:
-    st.json(st.secrets["gcp_service_account"])
     
 # Helper function to extract numeric rating from label
 def extract_rating(label):
