@@ -113,7 +113,7 @@ elif st.session_state.page == "experiment":
 
             if submitted:
                 def extract_rating(choice): return int(choice.split(" ")[0]) if choice else None
-                record = {
+                    record = {
         "participant": st.session_state.participant_id,
         "age": st.session_state.age,
         "gender": st.session_state.gender,
