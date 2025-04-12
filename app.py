@@ -176,3 +176,11 @@ elif st.session_state.page == "thankyou":
             st.error(f"❌ Failed to send email. Error: {e}")
     else:
         st.warning("⚠️ No responses were recorded.")
+
+
+st.title("Thank you!")
+st.write("You have completed the study.")
+st.markdown("Please copy the following completion code and paste it into Prolific:")
+st.code("PROLIFIC-ROBOTS-0424", language="text")
+st.markdown("Or click the link below to be redirected to Prolific:")
+st.markdown("[Complete Submission](https://app.prolific.co/submissions/complete?cc=PROLIFIC-ROBOTS-0424)")
