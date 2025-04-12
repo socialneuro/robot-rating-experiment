@@ -9,6 +9,10 @@ from google.oauth2.service_account import Credentials
 
 st.set_page_config(page_title="Robot Rating Experiment", layout="centered")
 
+# Define extract_rating function at module level
+def extract_rating(choice): 
+    return int(choice.split(" ")[0]) if choice else None
+
 @st.cache_data
 def load_conditions():
     return pd.read_csv("robot_conditions.csv")
@@ -112,32 +116,7 @@ elif st.session_state.page == "experiment":
             submitted = st.form_submit_button("Submit Ratings")
 
             if submitted:
-                def extract_rating(choice): return int(choice.split(" ")[0]) if choice else None
-                    record = {
-        "participant": st.session_state.participant_id,
-        "age": st.session_state.age,
-        "gender": st.session_state.gender,
-        "image": row['filename'],
-        "friendliness": row['friendliness'],
-        "type": row['type'],
-        "instance": row['instance'],
-        "realistic": extract_rating(realistic),
-        "friendly": extract_rating(friendly),
-        "scary": extract_rating(scary),
-        "timestamp": datetime.now().isoformat()
-    }
-    st.session_state.responses.append(record)
-
-    try:
-        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
-        client = gspread.authorize(creds)
-        sheet = client.open("Robot Ratings").worksheet("Sheet 1")
-        sheet.append_row(list(record.values()))
-    except Exception as e:
-        st.error(f"Failed to save to Google Sheets: {e}")
-
-
+                record = {
                     "participant": st.session_state.participant_id,
                     "age": st.session_state.age,
                     "gender": st.session_state.gender,
@@ -149,7 +128,18 @@ elif st.session_state.page == "experiment":
                     "friendly": extract_rating(friendly),
                     "scary": extract_rating(scary),
                     "timestamp": datetime.now().isoformat()
-                })
+                }
+                st.session_state.responses.append(record)
+
+                try:
+                    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+                    creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
+                    client = gspread.authorize(creds)
+                    sheet = client.open("Robot Ratings").worksheet("Sheet 1")
+                    sheet.append_row(list(record.values()))
+                except Exception as e:
+                    st.error(f"Failed to save to Google Sheets: {e}")
+
                 st.session_state.image_index += 1
                 st.rerun()
     else:
@@ -178,10 +168,8 @@ elif st.session_state.page == "thankyou":
     except Exception as e:
         st.error(f"Failed to upload to Google Sheets: {e}")
 
-
-
+    # Email section
     if "responses" in st.session_state and st.session_state.responses:
-        import pandas as pd
         import smtplib
         from email.message import EmailMessage
         from io import StringIO
